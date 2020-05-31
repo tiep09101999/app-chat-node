@@ -3,7 +3,7 @@
  * 
  * @param  io  from socket.io in server.js
  */
-let addNewContact =  (io) => {
+let removeReqContact =  (io) => {
     let clients = {};
         io.on("connection", (socket) => {
             let currentUserId =  socket.request.user._id;
@@ -19,17 +19,14 @@ let addNewContact =  (io) => {
                 clients[currentUserId] = [socket.id];
             }
 
-        socket.on("add-new-contact", (data) => {
+        socket.on("remove-req-contact", (data) => {
             let currentUser = {
                 id: socket.request.user._id,
-                username: socket.request.user.username,
-                avatar: socket.request.user.avatar,
-                address: (socket.request.user.address !== null) ? socket.request.user.address : ""
             };
             // nếu user đc gửi lời mời đang onl thì emit về user đó
             if(clients[data.contactId]){
                 clients[data.contactId].forEach(e => {
-                    io.sockets.connected[e].emit("res-add-new-contact", currentUser);
+                    io.sockets.connected[e].emit("res-remove-req-contact", currentUser);
                 })
             }
             
@@ -45,4 +42,4 @@ let addNewContact =  (io) => {
     });
 };
 
-module.exports = addNewContact;
+module.exports = removeReqContact;

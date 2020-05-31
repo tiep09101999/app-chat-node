@@ -10,7 +10,7 @@ import {configSession, sessionStore} from "./src/config/session"
 import passport from "passport"
 import socketio from "socket.io";
 import initSockets from "./src/sockets/index";
-import passportSocketio from "passport.socketio";
+
 import cookieParser from "cookie-parser"
 import {configSocketio} from "./src/config/socketio";
 

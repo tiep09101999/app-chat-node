@@ -1,5 +1,6 @@
 import ContactModel from "../models/contact.model";
 import UserModel from "../models/user.model"
+import NotificationModel from "../models/notification.model"
 import _ from "lodash";
 let findUsersContact =  (currentUsersId, keyword) => {
     return new Promise( async (resolve, reject) => {
@@ -30,6 +31,13 @@ let addNew =  (currentUsersId, contactId) => {
             contactId: contactId
         };
         let newContact = await ContactModel.createNew(newContactItem);
+
+        let notificationItem = {
+            senderId: currentUsersId,
+            receiverId: contactId,
+            type: NotificationModel.types.ADD_CONTACT
+        };
+        await NotificationModel.model.createNew(notificationItem);
         resolve(newContact);
     });
 };
@@ -37,15 +45,98 @@ let addNew =  (currentUsersId, contactId) => {
 let removeReqContact =  (currentUsersId, contactId) => {
     return new Promise( async (resolve, reject) => {
         let removeReq = await ContactModel.removeReqContact(currentUsersId, contactId);
-        // if(removeReq.result.n == 0){
-        //    return reject(false);
-        // }
+        let type_add = NotificationModel.types.ADD_CONTACT;
+        await NotificationModel.model.removeReqContactNotification(currentUsersId,contactId, type_add);
         resolve(true);
+    });
+};
+
+let countAllContacts =  (currentUsersId) => {
+    return new Promise( async (resolve, reject) => {
+        try {
+            let count = await ContactModel.countAllContacts(currentUsersId);
+            
+            resolve(count);
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+let countAllContactsSent =  (currentUsersId) => {
+    return new Promise( async (resolve, reject) => {
+        try {
+            let count = await ContactModel.countAllContactsSent(currentUsersId);
+            
+            resolve(count);
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+let countAllContactsReceived =  (currentUsersId) => {
+    return new Promise( async (resolve, reject) => {
+        try {
+            let count = await ContactModel.countAllContactsReceived(currentUsersId);
+            
+            resolve(count);
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+let getContacts =  (currentUsersId) => {
+    return new Promise( async (resolve, reject) => {
+        try {
+            let contacts = await ContactModel.getContacts(currentUsersId, 10);
+            let users = contacts.map( async (e) => {
+                if(e.contactId == currentUsersId ){
+                    return await UserModel.findUserById(e.userId);
+                } else {
+                    return await UserModel.findUserById(e.contactId);
+                }
+            });
+            resolve(await Promise.all(users));
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+let getContactsSent =  (currentUsersId) => {
+    return new Promise( async (resolve, reject) => {
+        try {
+            let contacts = await ContactModel.getContactsSent(currentUsersId, 10);
+            let users = contacts.map( async (e) => {
+                return await UserModel.findUserById(e.contactId);
+            });
+            resolve(await Promise.all(users));
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+let getContactsReceived =  (currentUsersId) => {
+    return new Promise( async (resolve, reject) => {
+        try {
+            let contacts = await ContactModel.getContactsReceived(currentUsersId, 10);
+            let users = contacts.map( async (e) => {
+                return await UserModel.findUserById(e.userId);
+            });
+            resolve(await Promise.all(users));
+        } catch (error) {
+            reject(error);
+        }
     });
 };
 
 module.exports = {
     findUsersContactService: findUsersContact,
     addNew: addNew,
-    removeReqContact: removeReqContact
+    removeReqContact: removeReqContact,
+    getContacts:getContacts,
+    getContactsSent:getContactsSent,
+    getContactsReceived:getContactsReceived,
+    countAllContacts: countAllContacts,
+    countAllContactsSent: countAllContactsSent,
+    countAllContactsReceived:countAllContactsReceived
+    
 }

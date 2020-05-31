@@ -254,7 +254,7 @@ label:focus,
   z-index: 999;
 }
 
-#notifications h3 {
+#popup-mark-notif-as-read {
   display: block;
   color: #333;
   background: #FFF;
@@ -293,7 +293,7 @@ label:focus,
 }
 
 .noti_counter {
-  display: none;
+  display: block;
   position: absolute;
   background: #E1141E;
   color: #FFF;
@@ -312,13 +312,16 @@ label:focus,
   background-color: #fff;
   overflow: auto;
 }
-
+.display{
+  display: none;
+}
 .noti_content>span {
   position: absolute;
   max-width: 95%;
   margin-top: 5px;
   margin-left: 7px;
   color: #333;
+  padding: 5px;
 }
 
 .seeAll {
@@ -1274,4 +1277,8 @@ label:focus,
 
 #user-profile-modal input:hover, #user-profile-modal input:focus {
   border-color: #576574
+}
+
+.notif-read-false {
+  background: #E3E8F0;
 }

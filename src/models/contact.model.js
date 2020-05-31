@@ -50,6 +50,85 @@ ContactSchema.statics= {
                 {"contactId": contactId}
             ]
         }).exec();
+    },
+    /**
+     * lấy ra các ContactUser
+     * @param {*} userId 
+     * @param {*} limit 
+     */
+    getContacts(userId, limit){
+        return this.find({
+            $and: [
+                {$or: [
+                    {"userId": userId},
+                    {"contactId": userId}
+                ]},
+                {"status": true}
+            ]
+        }).sort({"createAt": -1}).limit(limit).exec();
+    },
+    /**
+     * lấy ra danh sách các User mình đang gửi lời mời kết bạn
+     * @param {*} userId 
+     * @param {*} limit 
+     */
+    getContactsSent(userId, limit){
+        return this.find({
+            $and: [
+                {"userId": userId},
+                {"status": false}
+            ]
+        }).sort({"createAt": -1}).limit(limit).exec();
+    },
+    /**
+     * lấy ra danh sách các User đang gửi lời mời kết bạn cho mình
+     * @param {*} userId 
+     * 
+     */
+    getContactsReceived(userId, limit){
+        return this.find({
+            $and: [
+                {"contactId": userId},
+                {"status": false}
+            ]
+        }).exec();
+    },
+    countAllContacts(userId){
+        return this.countDocuments({
+            $and: [
+                {$or: [
+                    {"userId": userId},
+                    {"contactId": userId}
+                ]},
+                {"status": true}
+            ]
+        }).exec();
+    },
+    /**
+     * đếm danh sách các User mình đang gửi lời mời kết bạn
+     * @param {*} userId 
+     *
+     */
+    countAllContactsSent(userId){
+        return this.countDocuments({
+            $and: [
+                {"userId": userId},
+                {"status": false}
+            ]
+        }).exec();
+    },
+    /**
+     * đếm slg danh sách các User đang gửi lời mời kết bạn cho mình
+     * @param {*} userId 
+     * @param {*} limit 
+     */
+    countAllContactsReceived(userId){
+        return this.countDocuments({
+            $and: [
+                {"contactId": userId},
+                {"status": false}
+            ]
+        }).exec();
     }
 };
 
