@@ -187,6 +187,10 @@ label:focus,
   font-weight: 700;
 }
 
+.display-important{
+  display: inline-block !important;
+}
+
 .contactPanel .user-address {
   max-width: 90%;
   height: auto;
@@ -197,9 +201,9 @@ label:focus,
 .contactPanel .user-talk,
 .contactPanel .user-remove-contact,
 .contactPanel .user-remove-request-contact,
-.contactPanel .user-acccept-contact-received,
-.contactPanel .user-remove-request-sent,
-.contactPanel .user-reject-request-contact-received {
+.contactPanel .user-approve-request-contact-received,
+
+.contactPanel .user-remove-request-contact-received {
   box-sizing: border-box;
   display: inline-flex;
   flex-shrink: 0;
@@ -308,6 +312,7 @@ label:focus,
 }
 
 .noti_content {
+  position: relative;
   height: 200px;
   background-color: #fff;
   overflow: auto;

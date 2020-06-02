@@ -61,9 +61,9 @@
                     <li>
                         <a href="#contactsModal" data-toggle="modal" title="Quản lý liên lạc" id="show-modal-contacts">
                             <i class="fa fa-user-plus"></i>
-                            <% if((countAllContactsSents + countAllContactsReceiveds) >0) { %>
+                            <% if( (countAllContactsReceiveds + countAllContactsSents) >0) { %>
                                 <div class="noti_contact_counter">
-                                    <%= (countAllContactsSents + countAllContactsReceiveds) %>
+                                    <%= (countAllContactsReceiveds + countAllContactsSents) %>
                                 </div>
                             <% } else { %>
                                 <div class="noti_contact_counter display"></div>
@@ -81,7 +81,6 @@
                             <% } else { %>
                                 <div class="noti_counter display" ></div>
                             <%  } %>
-                            <div class="noti_counter" ></div>
                             <div id="noti_Container">
                                 <div id="notifications">
                                     <a href="javascript:void(0)" id="popup-mark-notif-as-read">Đánh dấu tất cả là đã đọc</a>
@@ -97,8 +96,8 @@
                     </li>
                     <li class="dropdown" id="dropdown-navbar-user" data-uid="user._id">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                            <img class="avatar-small" src="images/users//tiepnguyen.jpg" alt="">
-                            Tiệp Nguyễn
+                            <img class="avatar-small" src="images/users/<%= user.avatar %>" alt="">
+                            <%= user.username %>
                             <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu">
@@ -312,8 +311,11 @@
     <script src="socket.io/socket.io.js"></script>
     <!-- My js-->
     <script src="js/mainConfig.js"></script>
+    <script src="js/updateUser.js"></script>
     <script src="js/addContact.js"></script>
     <script src="js/removeContact.js"></script>
+    <script src="js/removeContactReceived.js"></script>
+    <script src="js/approveRequestContactReceived.js"></script>
     <script src="js/findUsersContact.js"></script>
 
     <!-- include('../contacts/contactsModal'); -->
@@ -331,10 +333,10 @@
                             Danh bạ 
                             <% if(countAllContactss > 0) { %>
                                 <span class="show-number-contacts count-contacts">
-                                    (<em><%=countAllContactss %></em>)
+                                    (<em><%= countAllContactss %></em>)
                                 </span>
                             <% } else { %>
-                                <span class="show-number-contacts count-contacts display">
+                                <span class="show-number-contacts count-contacts ">
                                 </span>
                             <% } %>
                             
@@ -346,19 +348,19 @@
                                     (<em><%=countAllContactsSents %></em>)
                                 </span>
                             <% } else { %>
-                                <span class="show-number-contacts count-request-contact-sent">
+                                <span class="show-number-contacts count-request-contact-sent ">
                                 </span>
                             <% } %>
                             
                         </a></li>
                         <li><a data-toggle="tab" id="link-request-contact-received" href="#request-contact-received">
                             Yêu cầu kết bạn 
-                            <% if(countAllContactsReceiveds) { %>
+                            <% if(countAllContactsReceiveds > 0) { %>
                                 <span class="show-number-contacts count-request-contact-received">
                                     (<em><%= countAllContactsReceiveds %></em>)
                                 </span>
                             <% } else { %>
-                                <span class="show-number-contacts count-request-contact-received display">
+                                <span class="show-number-contacts count-request-contact-received ">
                                 </span>
                             <% } %>
                            
@@ -386,7 +388,7 @@
                             <div class="find-user-bottom">
                                 <ul class="contactList">
                                     <% contacts.forEach((e) => { %>
-                                        <li class="_contactList" data-uid=" <%= e._id %>>">
+                                        <li class="_contactList" data-uid=" <%= e._id %>">
                                             <div class="contactPanel">
                                                 <div class="user-avatar">
                                                     <img src="images/users/<%=e.avatar%>" alt="">
@@ -431,7 +433,7 @@
                                                 <div class="user-address">
                                                     <span>&nbsp <%= e.address %></span>
                                                 </div>
-                                                <div class="user-remove-request-sent action-danger" data-uid="<%= e._id %>">
+                                                <div class="user-remove-request-contact display-important action-danger" data-uid="<%= e._id %>">
                                                     Hủy yêu cầu
                                                 </div>
                                             </div>
@@ -459,10 +461,10 @@
                                                 <div class="user-address">
                                                     <span>&nbsp <%= e.address %></span>
                                                 </div>
-                                                <div class="user-acccept-contact-received" data-uid="<%= e._id %>">
+                                                <div class="user-approve-request-contact-received" data-uid="<%= e._id %>">
                                                     Chấp nhận
                                                 </div>
-                                                <div class="user-reject-request-contact-received action-danger" data-uid="<%= e._id %>">
+                                                <div class="user-remove-request-contact-received action-danger" data-uid="<%= e._id %>">
                                                     Xóa yêu cầu
                                                 </div>
                                             </div>
@@ -563,7 +565,7 @@
                                     <div class="col-md-3">
                                         <div class="text-center" id="div-update-avatar">
                                             <div id="image-edit-profile">
-                                                <img src="images/users/tiepnguyen.jpg" class="avatar img-circle" alt="avatar">
+                                                <img src="images/users/<%= user.avatar%>" id="user-modal-avatar" class="avatar img-circle" alt="avatar">
                                             </div>
                                             <h6>Tải lên một ảnh mới...</h6>
                                             <input type="file" class="form-control" id="input-change-avatar" name="avatar"><br>
@@ -583,33 +585,30 @@
                                             Update user success example.<br>
                                             <!-- <script>openProfileModal();</script> -->
                                         </div>
-    
-                                        <h3>Local account.</h3>
-                                        <h3>Facebook account.</h3>
-                                        <h3>Google account.</h3>
+
     
                                         <br>
                                         <div class="form-group">
                                             <label class="col-lg-3 control-label">Email:</label>
                                             <div class="col-lg-8">
-                                                <div class="form-control" disabled>tiepnguyen@tiepnguyen.com</div>
+                                                <div class="form-control" disabled><%= user.local.email %></div>
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-md-3 control-label">Username:</label>
                                             <div class="col-md-8">
-                                                <input class="form-control" type="text" name="username" value="Tiệp Nguyễn">
+                                                <input id="input-change-username" class="form-control" type="text" name="username" value="<%= user.username%>">
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-lg-3 control-label">Giới tính:</label>
                                             <div class="col-lg-8">
                                                 <label class="radio-inline col-lg-2">Nam
-                                                    <input type="radio" name="gender" value="male" checked required>
+                                                    <input id="input-change-gender-male" type="radio" name="gender" value="male" <% if(user.gender === "male" ) { %> checked  <% } %> required>
                                                     <span class="checkmark"></span>
                                                 </label>
                                                 <label class="radio-inline col-lg-2">Nữ
-                                                    <input type="radio" name="gender" value="female" required>
+                                                    <input id="input-change-gender-female" type="radio" name="gender" value="female" <% if(user.gender === "female" ) { %> checked  <% } %> required>
                                                     <span class="checkmark"></span>
                                                 </label>
                                             </div>
@@ -617,21 +616,21 @@
                                         <div class="form-group">
                                             <label class="col-lg-3 control-label">Địa chỉ:</label>
                                             <div class="col-lg-8">
-                                                <input class="form-control" type="text" name="address" value="Hà Nội, Việt Nam">
+                                                <input id="input-change-address" class="form-control" type="text" name="address" value="<%= user.address%>">
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-lg-3 control-label">Số điện thoại:</label>
                                             <div class="col-lg-8">
-                                                <input class="form-control" type="text" name="phone" value="0123456789">
+                                                <input id="input-change-phone" class="form-control" type="text" name="phone" value="<%= user.phone%>">
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-md-3 control-label"></label>
                                             <div class="col-md-8">
-                                                <input type="submit" class="btn btn-primary custom-background-btn-primary" name="submit" value="Lưu lại">
+                                                <input type="button" id="input-btn-update-user" class="btn btn-primary custom-background-btn-primary" name="submit" value="Lưu lại">
                                                 <span></span>
-                                                <input type="reset" class="btn btn-default custom-background-btn-reset" value="Hủy bỏ">
+                                                <input type="reset" id="input-btn-cancel-update-user" class="btn btn-default custom-background-btn-reset" value="Hủy bỏ">
                                             </div>
                                         </div>
                                     </div>
@@ -645,7 +644,7 @@
                                     Update password error example<br>
                                     <!-- <script>openProfilePasswordModal();</script> -->
                                 </div>
-
+                                
                                 <div class="alert alert-success alert-dismissable">
                                     <a class="panel-close close" data-dismiss="alert">×</a>
                                     Update password success example<br>

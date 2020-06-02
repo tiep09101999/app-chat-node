@@ -1,19 +1,13 @@
 function increaseNumber(className){
-    let currentValue = +$(`.${className}`).find("em").text();
+    let currentValue = +($(`.${className}`).find("em").text());
     currentValue++;
-    if(currentValue === 0){
-        $(`.${className}`).html("");
-    }
-    else $(`.${className}`).html(`(<em>${currentValue}</em>)`);
+    $(`.${className}`).html(`(<em>${currentValue}</em>)`);
 };
 
 function increaseNotification(className){
-    let currentValue = +$(`.${className}`).text();
+    let currentValue = +($(`.${className}`).text());
     currentValue++;
-    if(currentValue === 0){
-        $(`.${className}`).css("display", "none").html("");
-    }
-    else $(`.${className}`).css("display", "block").html(currentValue);
+    $(`.${className}`).css("display", "block").html(currentValue);
 }
 
 function addContact(){
@@ -23,11 +17,12 @@ function addContact(){
             if(data.success){
                 $("#find-user").find(`div.user-add-new-contact[data-uid= ${targetId}]`).hide();
                 $("#find-user").find(`div.user-remove-request-contact[data-uid= ${targetId}]`).css("display", "inline-block");
+                increaseNotification("noti_contact_counter");
                 increaseNumber("count-request-contact-sent");
 
                 let userInfo = $("#find-user").find(`ul li[data-uid = ${targetId}]`).get(0).outerHTML;
                 $("#request-contact-sent").find("ul").prepend(userInfo);
-                console.log(userInfo);
+                removeContact();
                 // xử lý realtime
                 socket.emit("add-new-contact", {contactId : targetId});
             
@@ -46,6 +41,7 @@ socket.on("res-add-new-contact", function(data){
     // append là đẩy từ dưới lên 
     $(".noti_content").prepend(notify);
     increaseNumber("count-request-contact-received");
+    
     increaseNotification("noti_contact_counter");
     increaseNotification("noti_counter");
 
@@ -63,13 +59,16 @@ socket.on("res-add-new-contact", function(data){
                                 <div class="user-address">
                                     <span>&nbsp ${data.address}</span>
                                 </div>
-                                <div class="user-acccept-contact-received" data-uid="${data.id}">
+                                <div class="user-approve-request-contact-received" data-uid="${data.id}">
                                     Chấp nhận
                                 </div>
-                                <div class="user-reject-request-contact-received action-danger" data-uid="${data.id}">
+                                <div class="user-remove-request-contact-received action-danger" data-uid="${data.id}">
                                     Xóa yêu cầu
                                 </div>
                             </div>
                         </li>`;
     $("#request-contact-received").find("ul").prepend(userInfoHTML);
+    removeContactReceiveds();
+    approveContactReceiveds();
+
 })

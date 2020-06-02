@@ -47,9 +47,33 @@ ContactSchema.statics= {
         return this.deleteOne({
             $and: [
                 {"userId":userId},
-                {"contactId": contactId}
+                {"contactId": contactId},
+                {"status" : false}
             ]
         }).exec();
+    },
+    removeContactReceived(userId, contactId){
+        return this.deleteOne({
+            $and: [
+                {"userId":contactId},
+                {"contactId": userId},
+                {"status" : false}
+            ]
+        }).exec();
+    },
+    /**
+     * Chấp nhận kết bạn ( status = true)
+     * @param {*} userId 
+     * @param {*} contactId 
+     */
+    approveRequestContactReceived(userId, contactId){
+        return this.findOneAndUpdate({
+            $and: [
+                {"userId":contactId},
+                {"contactId": userId},
+                {"status" : false}
+            ]
+        }, {"status": true}).exec();
     },
     /**
      * lấy ra các ContactUser

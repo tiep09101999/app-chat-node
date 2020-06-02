@@ -54,8 +54,6 @@ let initPassportLocal = () => {
                 return done(e, null);
             })
     });
-
-    
 };
 
 module.exports = initPassportLocal;

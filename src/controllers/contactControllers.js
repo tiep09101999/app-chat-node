@@ -1,5 +1,5 @@
 
-import {findUsersContactService, addNew, removeReqContact} from "../services/contactService";
+import {findUsersContactService, addNew, removeReqContact, removeReqContactReceived, approveRequestContactReceived} from "../services/contactService";
 module.exports.findUsersContact = async (req,res) => {
     try {
         // lay userId trong session
@@ -35,6 +35,32 @@ module.exports.removeContact = async (req,res) => {
 
         let removeReq = await removeReqContact(currentUserId, contactId);
         return res.status(200).send({success: !!removeReq});
+       
+    } catch (error) {
+        return res.status(500).send(error);
+    }
+};
+module.exports.removeContactReceived = async (req,res) => {
+    try {
+        // lay userId trong session
+        let currentUserId = req.user._id;
+        let contactId = req.body.uid; // lay du lieu tu post
+
+        let removeReq = await removeReqContactReceived(currentUserId, contactId);
+        return res.status(200).send({success: !!removeReq});
+       
+    } catch (error) {
+        return res.status(500).send(error);
+    }
+};
+module.exports.approveRequestContactReceived = async (req,res) => {
+    try {
+        // lay userId trong session
+        let currentUserId = req.user._id;
+        let contactId = req.body.uid; // lay du lieu tu post
+
+        let approveReq = await approveRequestContactReceived(currentUserId, contactId);
+        return res.status(200).send({success: !!approveReq});
        
     } catch (error) {
         return res.status(500).send(error);

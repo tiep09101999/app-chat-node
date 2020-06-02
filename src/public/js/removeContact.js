@@ -1,6 +1,6 @@
 
 function decreaseCount(className){
-    let currentValue = +$(`.${className}`).find("em").text();
+    let currentValue = +($(`.${className}`).find("em").text());
     currentValue--;
     if(currentValue === 0){
         $(`.${className}`).html("");
@@ -9,7 +9,7 @@ function decreaseCount(className){
 };
 
 function decreaseNotification(className){
-    let currentValue = +$(`.${className}`).text();
+    let currentValue = +($(`.${className}`).text());
     currentValue--;
     if(currentValue === 0){
         $(`.${className}`).css("display", "none").html("");
@@ -17,7 +17,7 @@ function decreaseNotification(className){
     else $(`.${className}`).css("display", "block").html(currentValue);
 }
 function removeContact(){
-    $(".user-remove-request-contact").bind("click",function(){
+    $(".user-remove-request-contact").unbind("click").on("click",function(){
         let targetId = $(this).data("uid");
         $.ajax({
             url:"/contact/remove-request",
@@ -29,6 +29,7 @@ function removeContact(){
                     $("#find-user").find(`div.user-add-new-contact[data-uid= ${targetId}]`).css("display", "inline-block");
 
                     // Xóa ở modal đang chờ xác nhận
+                    decreaseNotification("noti_contact_counter");
                     decreaseCount("count-request-contact-sent");
 
                     $("#request-contact-sent").find(`li[data-uid= ${targetId}]`).remove();
@@ -48,4 +49,8 @@ socket.on("res-remove-req-contact", function(data){
     decreaseCount("count-request-contact-received");
     decreaseNotification("noti_contact_counter");
     decreaseNotification("noti_counter");
+})
+
+$(document).ready(function(){
+    removeContact();
 })
