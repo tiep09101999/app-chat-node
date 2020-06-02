@@ -5,6 +5,7 @@ import homeController from "../controllers/homeController"
 import initPassportLocal from "../controllers/passportController/local"
 import passport from "passport"
 import contactControllers from "../controllers/contactControllers"; 
+import userController from "../controllers/userController"; 
 // -------------------------
 
  // init passport local
@@ -28,6 +29,7 @@ let initRoutes = (app) => {
     router.delete("/contact/remove-request", authController.checkLoggedIn, contactControllers.removeContact);
     router.delete("/contact/remove-request-contact-received", authController.checkLoggedIn, contactControllers.removeContactReceived);
     router.put("/contact/approve-request-contact-received", authController.checkLoggedIn, contactControllers.approveRequestContactReceived);
+    router.put("/user/update-avatar", authController.checkLoggedIn, userController.updateAvatar);
     router.get("/logout",  authController.checkLoggedIn,authController.getLogout);
    
     

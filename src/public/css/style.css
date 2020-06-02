@@ -1287,3 +1287,7 @@ label:focus,
 .notif-read-false {
   background: #E3E8F0;
 }
+
+.user-modal-alert-error, .user-modal-alert-success{
+  display: none;
+}

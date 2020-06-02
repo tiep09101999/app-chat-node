@@ -72,15 +72,24 @@ $(document).ready(function(){
             contentType: false,
             data: userAvatar,
             success: function(result){
+                $(".user-modal-alert-success").find("span").text(result.message);
+                $(".user-modal-alert-success").css("display", "block");
 
+                // update avatar ở thanh cá nhân góc phải
+                $("#navbar-avatar").attr("src",result.imageSrc);
+                originAvatarSrc = result.imageSrc;
+                $("#input-btn-cancel-update-user").click();
             },
-            error: function(error){
-                
-            }
+            // error: function(error){
+            //     console.log(error);
+            //     $(".user-modal-alert-error").find("span").text(error.responseText);
+            //     $(".user-modal-alert-error").css("display", "block");
+            // }
         })
     });
     $("#input-btn-cancel-update-user").bind("click",function(){
         $("#user-modal-avatar").attr("src", originAvatarSrc);
+        $("#input-change-avatar").val(null);
         userAvatar = null;
         userInfo = {};
     });

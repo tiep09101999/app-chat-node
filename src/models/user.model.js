@@ -52,6 +52,14 @@ UserSchema.statics= {
     findUserById(id){
         return this.findById(id).exec();
     },
+    // updateUser(id, item){
+    //     return this.findOneAndUpdate({
+    //         "_id": id
+    //     }, {"avatar": item.avatar, "updateAt": item.updateAt}).exec();
+    // },
+    updateUser(id, item){
+        return this.findByIdAndUpdate(id,item).exec();
+    },
 
     findAllForAddContact(friendUser, keyword){
         return this.find({
