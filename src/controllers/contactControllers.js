@@ -1,5 +1,10 @@
 
-import {findUsersContactService, addNew, removeReqContact, removeReqContactReceived, approveRequestContactReceived} from "../services/contactService";
+import {findUsersContactService,
+     addNew, 
+     removeReqContact, 
+     removeReqContactReceived, 
+     approveRequestContactReceived,
+      removeFriend }   from "../services/contactService";
 module.exports.findUsersContact = async (req,res) => {
     try {
         // lay userId trong session
@@ -40,6 +45,19 @@ module.exports.removeContact = async (req,res) => {
         return res.status(500).send(error);
     }
 };
+module.exports.removeFriend = async (req,res) => {
+    try {
+        // lay userId trong session
+        let currentUserId = req.user._id;
+        let contactId = req.body.uid; // lay du lieu tu post
+
+        let removeFriend = await removeFriend(currentUserId, contactId);
+        return res.status(200).send({success: !!removeFriend});
+       
+    } catch (error) {
+        return res.status(500).send(error);
+    }
+};
 module.exports.removeContactReceived = async (req,res) => {
     try {
         // lay userId trong session
@@ -50,6 +68,7 @@ module.exports.removeContactReceived = async (req,res) => {
         return res.status(200).send({success: !!removeReq});
        
     } catch (error) {
+        console.log(error);
         return res.status(500).send(error);
     }
 };

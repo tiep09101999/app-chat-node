@@ -58,6 +58,15 @@ let removeReqContactReceived =  (currentUsersId, contactId) => {
         resolve(true);
     });
 };
+let removeFriend =  (currentUsersId, contactId) => {
+    return new Promise( async (resolve, reject) => {
+        let removeFriend = await ContactModel.removeFriend(currentUsersId, contactId);
+        if(removeFriend.result.n === 0){
+            return reject(false);
+        }
+        resolve(true);
+    });
+};
 let approveRequestContactReceived =  (currentUsersId, contactId) => {
     return new Promise( async (resolve, reject) => {
         let approveReq = await ContactModel.approveRequestContactReceived(currentUsersId, contactId);
@@ -159,5 +168,6 @@ module.exports = {
     countAllContactsSent: countAllContactsSent,
     countAllContactsReceived:countAllContactsReceived,
     removeReqContactReceived: removeReqContactReceived,
-    approveRequestContactReceived: approveRequestContactReceived
+    approveRequestContactReceived: approveRequestContactReceived,
+    removeFriend: removeFriend
 }

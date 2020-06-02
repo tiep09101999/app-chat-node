@@ -56,8 +56,24 @@ ContactSchema.statics= {
         return this.deleteOne({
             $and: [
                 {"userId":contactId},
-                {"contactId": userId},
-                {"status" : false}
+                {"contactId": userId}
+            ]
+        }).exec();
+    },
+
+    removeFriend(userId, contactId){
+        return this.findOneAndDelete({
+            $or: [
+                {$and: [
+                    {"userId":userId},
+                    {"contactId": contactId},
+                    {"status" : true}
+                ]},
+                {$and: [
+                    {"userId":contactId},
+                    {"contactId": userId},
+                    {"status" : true}
+                ]}
             ]
         }).exec();
     },

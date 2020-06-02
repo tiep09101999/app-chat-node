@@ -29,6 +29,7 @@ function approveContactReceiveds(){
                     decreaseCount("count-request-contact-received");
                     increaseNumber("count-contacts");
                     decreaseCount("noti_contact_counter");
+                    removeFriend();
                    socket.emit("approve-request-contact-received", {contactId: targetId});
                 }
             }
@@ -76,6 +77,7 @@ socket.on("res-approve-req-contact-received", function(data){
     </li>   
     `;
     $("#contacts").find("ul").prepend(userInfoHTML);
+    removeFriend();
     // // Thêm cuộc trò chuyện trong khung chat
 })
 
