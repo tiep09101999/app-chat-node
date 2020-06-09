@@ -12,7 +12,6 @@ module.exports.findUsersContact = async (req,res) => {
         let keyword = req.params.keyword;
         let users = await findUsersContactService(currentUserId, keyword);
         return res.render("main/findUser", {users});
-        console.log(users);
     } catch (error) {
         return res.status(500).send(error);
     }

@@ -14,19 +14,19 @@ let UserSchema =  new Schema({
         isActive:{ type:Boolean, default: false},
         verifyToken: String
     },
-    facebook: {
-        uid: String,
-        token:String,
-        email: {type:String, trim:true}
-    },
-    google: {
-        uid: String,
-        token:String,
-        email: {type:String, trim:true}
-    },
-    createAt: {type:String, default: Date.now},
-    updateAt: {type:String, default: null},
-    deleteAt: {type:String, default: null}
+    // facebook: {
+    //     uid: String,
+    //     token:String,
+    //     email: {type:String, trim:true}
+    // },
+    // google: {
+    //     uid: String,
+    //     token:String,
+    //     email: {type:String, trim:true}
+    // },
+    createAt: {type:Number, default: Date.now},
+    updateAt: {type:Number, default: null},
+    deleteAt: {type:Number, default: null}
 });
 
 UserSchema.statics= {
@@ -50,7 +50,15 @@ UserSchema.statics= {
         ).exec();
     },
     findUserById(id){
-        return this.findById(id).exec();
+        return this.findOne({"_id": id}).exec();
+    },
+    findNormalUserById(id){
+        return this.findById(id,{
+             _id:1,
+            username:1,
+            address:1,
+            avatar:1
+        }).exec();
     },
     // updateUser(id, item){
     //     return this.findOneAndUpdate({

@@ -1,14 +1,18 @@
 import mongoose from "mongoose"
 let Schema = mongoose.Schema;
 let MessageSchema =  new Schema({
+    senderId: String,
+    receiverId: String,
+    conversationType: String,
+    messageType: String,
     sender: {
         id: String,
-        username: String,
+        name: String,
         avatar: String
     },
     receiver: {
         id: String,
-        username: String,
+        name: String,
         avatar: String
     },
     text: String,
@@ -17,9 +21,46 @@ let MessageSchema =  new Schema({
         contentType: String,
         fileName: String
     },
-    createAt: {type:String, default: Date.now},
-    updateAt: {type:String, default: null},
-    deleteAt: {type:String, default: null}
-})
+    createdAt: {type:Number, default: Date.now},
+    updatedAt: {type:Number, default: null},
+    deletedAt: {type:Number, default: null}
+});
+const Type = {
+    personal: "personal",
+    group: "group"
+}
+const message_type = {
+    text: "text",
+    image: "image",
+    file: "file"
+}
+MessageSchema.statics = {
+    createNew(item){
+        return this.create(item);
+    },
+    getMessages(senderId, receiverId, limit){
+        return this.find({
+            $or: [
+                {$and: [
+                    {"senderId": senderId},
+                    {"receiverId": receiverId}
+                ]},
+                {$and: [
+                    {"receiverId": senderId},
+                    {"senderId": receiverId}
+                ]}
+            ],
+        }).sort({"createdAt": 1}).limit(limit).exec();
+    },
+    getMessagesInGroup( receiverId, limit){
+        return this.find(
+           {"receiverId":receiverId}
+        ).sort({"createdAt": 1}).limit(limit).exec();
+    }
+}
 
-module.exports = mongoose.model("message", MessageSchema);
+module.exports = {
+    model: mongoose.model("message", MessageSchema),
+    conversationType: Type,
+    message_type: message_type
+}

@@ -4,9 +4,9 @@ let ContactSchema =  new Schema({
     userId:String,
     contactId:String,
     status:{type: Boolean, default:false},
-    createAt: {type:String, default: Date.now},
-    updateAt: {type:String, default: null},
-    deleteAt: {type:String, default: null}
+    createAt: {type:Number, default: Date.now},
+    updateAt: {type:Number, default: null},
+    deleteAt: {type:Number, default: null}
 });
 
 ContactSchema.statics= {
@@ -89,7 +89,10 @@ ContactSchema.statics= {
                 {"contactId": userId},
                 {"status" : false}
             ]
-        }, {"status": true}).exec();
+        }, {
+            "status": true,
+            "updateAt": Date.now()
+        }).exec();
     },
     /**
      * lấy ra các ContactUser
@@ -105,7 +108,7 @@ ContactSchema.statics= {
                 ]},
                 {"status": true}
             ]
-        }).sort({"createAt": -1}).limit(limit).exec();
+        }).sort({"updateAt": -1}).limit(limit).exec();
     },
     /**
      * lấy ra danh sách các User mình đang gửi lời mời kết bạn
@@ -168,6 +171,22 @@ ContactSchema.statics= {
                 {"contactId": userId},
                 {"status": false}
             ]
+        }).exec();
+    },
+    updateWhenHasNewMessage(userId, contactId){
+        return this.updateOne({
+            $or: [
+                {$and: [
+                    {"userId":userId},
+                    {"contactId": contactId}
+                ]},
+                {$and: [
+                    {"userId":contactId},
+                    {"contactId": userId}
+                ]}
+            ]
+        }, {
+            "updateAt": Date.now()
         }).exec();
     }
 };

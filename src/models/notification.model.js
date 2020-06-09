@@ -6,7 +6,7 @@ let NotificationSchema =  new Schema({
     type: String,
     content: String,
     isRead: {type: Boolean, default:false},
-    createAt: {type:String, default: Date.now}
+    createAt: {type:Number, default: Date.now}
    
 })
 

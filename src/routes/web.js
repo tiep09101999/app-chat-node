@@ -7,6 +7,7 @@ import initPassportLocal from "../controllers/passportController/local"
 import passport from "passport"
 import contactControllers from "../controllers/contactControllers"; 
 import userController from "../controllers/userController"; 
+import messageController from "../controllers/messageController"; 
 // -------------------------
 
  // init passport local
@@ -45,7 +46,12 @@ let initRoutes = (app) => {
     router.put("/user/update-password",
                 authController.checkLoggedIn, 
                 userController.updatePassword);
-    router.get("/logout",  authController.checkLoggedIn,authController.getLogout);
+    router.post("/message/add-new-text-emoji",
+                authController.checkLoggedIn, 
+                messageController.addNewTextEmoji);
+    router.get("/logout", 
+                authController.checkLoggedIn,
+                authController.getLogout);
    
     
     return app.use("/", router)

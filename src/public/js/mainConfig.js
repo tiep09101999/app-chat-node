@@ -26,7 +26,7 @@ function nineScrollRight() {
 }
 
 function enableEmojioneArea(chatId) {
-  $('.write-chat[data-chat="' + chatId + '"]').emojioneArea({
+  $(`#write-chat-${chatId}`).emojioneArea({
     standalone: false,
     pickerPosition: 'top',
     filtersPosition: 'bottom',
@@ -38,7 +38,12 @@ function enableEmojioneArea(chatId) {
     shortnames: false,
     events: {
       keyup: function(editor, event) {
-        $('.write-chat').val(this.getText());
+        // gán giá trị thay đổi vào thẻ input bị ẩn
+        $(`#write-chat-${chatId}`).val(this.getText());
+      },
+      click: function(){
+        // bật DOM bắt dữ liệu nhập vào
+        textAndEmoji(chatId);
       }
     },
   });
@@ -106,16 +111,7 @@ function gridPhotos(layoutNumber) {
   });
 }
 
-function showButtonGroupChat() {
-  $('#select-type-chat').bind('change', function() {
-    if ($(this).val() === 'group-chat') {
-      $('.create-group-chat').show();
-      // Do something...
-    } else {
-      $('.create-group-chat').hide();
-    }
-  });
-}
+
 
 function addFriendsToGroup() {
   $('ul#group-chat-friends').find('div.add-user').bind('click', function() {
@@ -151,6 +147,34 @@ function flashMaterNotify(){
     alertify.notify(notify, "success", 5);
   }
 }
+
+function changeTypeChat(){
+  $("#select-type-chat").bind("change", function(){
+      // tìm đến thẻ option nào đang được chọn
+      let optionSelected = $("option:selected", this);
+      optionSelected.tab("show");
+
+      if($(this).val() === "user-chat"){
+        $(".create-group-chat").hide();
+      } else {
+        $(".create-group-chat").show();
+      }
+  })
+};
+
+function changeScreenChat(){
+  $(".room-chat").unbind("click").on("click", function(){
+    $(".person").removeClass("active");
+    $(this).find("li").addClass("active");
+    $(this).tab("show");
+
+    let divId = $(this).find("li").data("chat");
+      nineScrollRight();
+
+    // Bật emoji, tham số truyền vào là id của box nhập nội dung tin nhắn
+    enableEmojioneArea(divId);
+  })
+}
 $(document).ready(function() {
   // Hide số thông báo trên đầu icon mở modal contact
   showModalContacts();
@@ -160,16 +184,12 @@ $(document).ready(function() {
 
   // Cấu hình thanh cuộn
   nineScrollLeft();
-  nineScrollRight();
 
-  // Bật emoji, tham số truyền vào là id của box nhập nội dung tin nhắn
-  enableEmojioneArea("17071995");
+  
 
   // Icon loading khi chạy ajax
   ajaxLoading();
 
-  // Hiển thị button mở modal tạo nhóm trò chuyện
-  showButtonGroupChat();
 
   // Hiển thị hình ảnh grid slide trong modal tất cả ảnh, tham số truyền vào là số ảnh được hiển thị trên 1 hàng.
   // Tham số chỉ được phép trong khoảng từ 1 đến 5
@@ -183,4 +203,12 @@ $(document).ready(function() {
 
   // flash message
   flashMaterNotify();
+  // thay đổi kiểu trò chuyện ( nhóm / riêng)
+  changeTypeChat();
+
+  // thay doi man hinh chat
+ changeScreenChat();
+
+ // click vào người chat đầu tiên khi reload trang
+ $("ul.people").find("a")[0].click();
 });

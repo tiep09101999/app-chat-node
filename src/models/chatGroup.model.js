@@ -8,9 +8,27 @@ let ChatGroupSchema =  new Schema({
     members: [
         {userId:String}
     ],    
-    createAt: {type:String, default: Date.now},
-    updateAt: {type:String, default: null},
-    deleteAt: {type:String, default: null}
-})
+    createAt: {type:Number, default: Date.now},
+    updateAt: {type:Number, default: Date.now},
+    deleteAt: {type:Number, default: null}
+});
+
+ChatGroupSchema.statics = {
+    // $elem la doi tuong element
+    getChatGroups(id, limit) {
+        return this.find({
+            "members": {$elemMatch: {"userId": id}}
+        }).sort({"updateAt": -1}).limit(limit).exec();
+    },
+    getChatGroupReceiver(id) {
+        return this.findOne({"_id": id}).exec();
+    },
+    updateWhenHasNewMessage(id, count){
+        return this.findByIdAndUpdate({"_id":id}, {
+            "messageAmount": count,
+            "updateAt": Date.now()
+        }).exec();
+    }
+}
 
 module.exports = mongoose.model("chat-group", ChatGroupSchema);
