@@ -49,6 +49,9 @@ let initRoutes = (app) => {
     router.post("/message/add-new-text-emoji",
                 authController.checkLoggedIn, 
                 messageController.addNewTextEmoji);
+    router.post("/message/add-new-image",
+                authController.checkLoggedIn, 
+                messageController.addNewImage);
     router.get("/logout", 
                 authController.checkLoggedIn,
                 authController.getLogout);

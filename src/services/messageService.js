@@ -3,6 +3,7 @@ import UserModel from "../models/user.model"
 import ChatGroupModel from "../models/chatGroup.model"
 import MessageModel from "../models/message.models"
 import _ from "lodash";
+import fsExtra from "fs-extra";
 // lấy ra toàn bộ cuộc trò chuyện
 let getAllConversationItems = (currentUserId) => {
     return new Promise( async (resolve, reject) => {
@@ -114,7 +115,81 @@ let addNewTextEmoji = (sender, receiverId, messageVal, isChatGroup) => {
             }
     })
 }
+/**
+ * 
+ * @param {Object} sender người gửi
+ * @param {string} receiverId người nhận
+ * @param {file} messageVal file image
+ * @param {bool} isChatGroup check chat nhóm hay personal
+ */
+let addNewImage = (sender, receiverId, messageVal, isChatGroup) => {
+    return new Promise( async (resolve, reject) => {
+            if(isChatGroup){
+                let getChatGroupReceiver = await ChatGroupModel.getChatGroupReceiver(receiverId);
+               
+                let receiver = {
+                    id: receiverId,
+                    name: getChatGroupReceiver.name,    
+                    avatar: "group-avatar-trungquandev.png"
+                };
+
+                let imageBuffer = await fsExtra.readFile(messageVal.path);
+                let imageContentType = messageVal.mimetype;
+                let imageName = messageVal.originalname;
+
+                let newMessageItem = {
+                    senderId: sender.id,
+                    receiverId: receiver.id,
+                    conversationType:  MessageModel.conversationType.group,
+                    messageType: MessageModel.message_type.image,
+                    sender: sender,
+                    receiver: receiver,
+                    file : {
+                        data: imageBuffer, 
+                        contentType: imageContentType,
+                        fileName: imageName
+                    },
+                    createdAt: Date.now()
+                };
+                let newMessage = await MessageModel.model.createNew(newMessageItem);
+                await ChatGroupModel.updateWhenHasNewMessage(receiverId, getChatGroupReceiver.messageAmount +1);
+                resolve(newMessage);
+
+            } else {
+                let getUserReceiver = await UserModel.findUserById(receiverId);
+               
+                let receiver = {
+                    id: receiverId,
+                    name: getUserReceiver.username,    
+                    avatar: getUserReceiver.avatar
+                };
+                let imageBuffer = await fsExtra.readFile(messageVal.path);
+                let imageContentType = messageVal.mimetype;
+                let imageName = messageVal.originalname;
+
+                let newMessageItem = {
+                    senderId: sender.id,
+                    receiverId: receiver.id,
+                    conversationType:  MessageModel.conversationType.personal,
+                    messageType: MessageModel.message_type.image,
+                    sender: sender,
+                    receiver: receiver,
+                    file : {
+                        data: imageBuffer, 
+                        contentType: imageContentType,
+                        fileName: imageName
+                    },
+                    
+                    createdAt: Date.now()
+                };
+                let newMessage = await MessageModel.model.createNew(newMessageItem);
+                await ContactModel.updateWhenHasNewMessage(sender.id, receiverId);
+                resolve(newMessage);
+            }
+    })
+}
 module.exports = {
     getAllConversationItems: getAllConversationItems,
-    addNewTextEmoji: addNewTextEmoji
+    addNewTextEmoji: addNewTextEmoji,
+    addNewImage: addNewImage
 };

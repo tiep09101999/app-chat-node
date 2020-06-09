@@ -20,6 +20,12 @@ ChatGroupSchema.statics = {
             "members": {$elemMatch: {"userId": id}}
         }).sort({"updateAt": -1}).limit(limit).exec();
     },
+    // lấy tất cả chat group id có thằng user
+    getChatGroupIdsByUser(id) {
+        return this.find({
+            "members": {$elemMatch: {"userId": id}}
+        }).exec();
+    },
     getChatGroupReceiver(id) {
         return this.findOne({"_id": id}).exec();
     },
