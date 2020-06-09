@@ -164,11 +164,12 @@ function changeTypeChat(){
 
 function changeScreenChat(){
   $(".room-chat").unbind("click").on("click", function(){
+    let divId = $(this).find("li").data("chat");
     $(".person").removeClass("active");
-    $(this).find("li").addClass("active");
+    $(`.person[data-chat=${divId}]`).addClass("active");
     $(this).tab("show");
 
-    let divId = $(this).find("li").data("chat");
+    
       nineScrollRight();
 
     // Bật emoji, tham số truyền vào là id của box nhập nội dung tin nhắn
@@ -211,4 +212,12 @@ $(document).ready(function() {
 
  // click vào người chat đầu tiên khi reload trang
  $("ul.people").find("a")[0].click();
+
+ // demos.emojione/latest/class-convert.html
+  $(".convert-emoji").each(function() {
+      var original = $(this).html();
+      // use .shortnameToImage if only converting shortnames (for slightly better performance)
+      var converted = emojione.toImage(original);
+      $(this).html(converted);
+  });
 });

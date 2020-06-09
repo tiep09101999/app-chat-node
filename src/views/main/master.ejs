@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="bower_components/AlertifyJS/build/css/alertify.css">
     <link rel="stylesheet" href="bower_components/emojionearea/dist/emojionearea.min.css">
     <link rel="stylesheet" href="bower_components/photoset-grid/css/colorbox.css">
+    <link rel="stylesheet" href="bower_components/emojione/extras/css/emojione.min.css">
+    <link rel="stylesheet" href="bower_components/emojione/extras/css/emojione-awesome.css">
 
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -153,7 +155,7 @@
                                             <span class="time">
                                                 <%= convertTime(getLastItem(e.messages).createdAt) %>
                                             </span>
-                                            <span class="preview">
+                                            <span class="preview convert-emoji">
                                                 <% if(getLastItem(e.messages).messageType==="text") { %>
                                                     <%= getLastItem(e.messages).text %>
                                                 <% } %>
@@ -179,7 +181,7 @@
                                             <span class="time">
                                                 <%= convertTime(getLastItem(e.messages).createdAt) %>
                                             </span>
-                                            <span class="preview">
+                                            <span class="preview convert-emoji">
                                                 <% if(getLastItem(e.messages).messageType==="text") { %>
                                                     <%= getLastItem(e.messages).text %>
                                                 <% } %>
@@ -212,7 +214,7 @@
                                                 <span class="time">
                                                     <%= convertTime(getLastItem(e.messages).createdAt) %>
                                                 </span>
-                                                <span class="preview">
+                                                <span class="preview convert-emoji">
                                                     <% if(getLastItem(e.messages).messageType==="text") { %>
                                                         <%= getLastItem(e.messages).text %>
                                                     <% } %>
@@ -245,7 +247,7 @@
                                                 <span class="time">
                                                     <%= convertTime(getLastItem(e.messages).createdAt) %>
                                                 </span>
-                                                <span class="preview">
+                                                <span class="preview convert-emoji">
                                                     <% if(getLastItem(e.messages).messageType==="text") { %>
                                                         <%= getLastItem(e.messages).text %>
                                                     <% } %>
@@ -290,12 +292,30 @@
                                         <i class="fa fa-photo"></i>
                                     </a>
                                 </span>
+                                <span class="chat-menu-right">
+                                    <a href="javascript:void(0)">&nbsp;</a>
+                                </span>
+                                <span class="chat-menu-right">
+                                    <a href="javascript:void(0)" id="number-members" data-toggle="modal">
+                                        <span class="show-number-members"><%= e.userAmount %></span>
+                                        <i class="fa fa-users"></i>
+                                    </a>
+                                </span>
+                                <span class="chat-menu-right">
+                                    <a href="javascript:void(0)">&nbsp;</a>
+                                </span>
+                                <span class="chat-menu-right">
+                                    <a href="javascript:void(0)" id="number-messages" data-toggle="modal">
+                                        <span class="show-number-messages"><%= e.messageAmount %></span>
+                                        <i class="fa fa-comment-o"></i>
+                                    </a>
+                                </span>
                             </div>
                             <div class="content-chat">
                                 <div class="chat" data-chat="<%= e._id%>">
                                     <% e.messages.forEach(function(mess){   %>
                                         <% if(mess.messageType === "text"){ %>
-                                            <div class="bubble <% if(mess.senderId == user._id) { %> me <% }
+                                            <div class=" convert-emoji bubble <% if(mess.senderId == user._id) { %> me <% }
                                             else { %> you <% } %> " data-mess-id="<%=mess._id %>">
                                                 <img src="/images/users/<%= mess.sender.avatar %>" 
                                                     class ="avatar-small" title ="<%= mess.sender.name %>" >
@@ -368,7 +388,7 @@
                                     <div class="chat" data-chat="<%= e._id%>">
                                         <% e.messages.forEach(function(mess){   %>
                                             <% if(mess.messageType === "text"){ %>
-                                                <div class="bubble <% if(mess.senderId == user._id) { %> me <% }
+                                                <div class=" convert-emoji bubble <% if(mess.senderId == user._id) { %> me <% }
                                                 else { %> you <% } %> " data-mess-id="<%=mess._id %>">
                                                     
                                                     <%= mess.text %>
@@ -438,6 +458,7 @@
     <script src="bower_components/sweetalert2/dist/sweetalert2.all.min.js"></script>
     <script src="bower_components/photoset-grid/jquery.photoset-grid.min.js"></script>
     <script src="bower_components/jquery-colorbox/jquery.colorbox-min.js"></script>
+    <script src="bower_components/emojione/lib/js/emojione.min.js"></script>
     <script src="socket.io/socket.io.js"></script>
     <!-- My js-->
     <script src="js/mainConfig.js"></script>
@@ -449,6 +470,7 @@
     <script src="js/removeFriend.js"></script>
     <script src="js/findUsersContact.js"></script>
     <script src="js/textAndEmoji.js"></script>
+    <script src="js/caculteNumberMessage.js"></script>
 
     <!-- include('../contacts/contactsModal'); -->
     <div class="modal fade" id="contactsModal" role="dialog">
