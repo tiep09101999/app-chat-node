@@ -52,6 +52,9 @@ let initRoutes = (app) => {
     router.post("/message/add-new-image",
                 authController.checkLoggedIn, 
                 messageController.addNewImage);
+    router.post("/message/add-new-attachment",
+                authController.checkLoggedIn, 
+                messageController.addNewAttachment);
     router.get("/logout", 
                 authController.checkLoggedIn,
                 authController.getLogout);

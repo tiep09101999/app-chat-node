@@ -119,9 +119,75 @@ let addNewTextEmoji = (sender, receiverId, messageVal, isChatGroup) => {
  * 
  * @param {Object} sender người gửi
  * @param {string} receiverId người nhận
- * @param {file} messageVal file image
+ * @param {file} messageVal file attachment
  * @param {bool} isChatGroup check chat nhóm hay personal
  */
+let addNewAttachment = (sender, receiverId, messageVal, isChatGroup) => {
+    return new Promise( async (resolve, reject) => {
+            if(isChatGroup){
+                let getChatGroupReceiver = await ChatGroupModel.getChatGroupReceiver(receiverId);
+               
+                let receiver = {
+                    id: receiverId,
+                    name: getChatGroupReceiver.name,    
+                    avatar: "group-avatar-trungquandev.png"
+                };
+
+                let attachmentBuffer = await fsExtra.readFile(messageVal.path);
+                let attachmentContentType = messageVal.mimetype;
+                let attachmentName = messageVal.originalname;
+
+                let newMessageItem = {
+                    senderId: sender.id,
+                    receiverId: receiver.id,
+                    conversationType:  MessageModel.conversationType.group,
+                    messageType: MessageModel.message_type.file,
+                    sender: sender,
+                    receiver: receiver,
+                    file : {
+                        data: attachmentBuffer, 
+                        contentType: attachmentContentType,
+                        fileName: attachmentName
+                    },
+                    createdAt: Date.now()
+                };
+                let newMessage = await MessageModel.model.createNew(newMessageItem);
+                await ChatGroupModel.updateWhenHasNewMessage(receiverId, getChatGroupReceiver.messageAmount +1);
+                resolve(newMessage);
+
+            } else {
+                let getUserReceiver = await UserModel.findUserById(receiverId);
+               
+                let receiver = {
+                    id: receiverId,
+                    name: getUserReceiver.username,    
+                    avatar: getUserReceiver.avatar
+                };
+                let attachmentBuffer = await fsExtra.readFile(messageVal.path);
+                let attachmentContentType = messageVal.mimetype;
+                let attachmentName = messageVal.originalname;
+
+                let newMessageItem = {
+                    senderId: sender.id,
+                    receiverId: receiver.id,
+                    conversationType:  MessageModel.conversationType.personal,
+                    messageType: MessageModel.message_type.file,
+                    sender: sender,
+                    receiver: receiver,
+                    file : {
+                        data: attachmentBuffer, 
+                        contentType: attachmentContentType,
+                        fileName: attachmentName
+                    },
+                    
+                    createdAt: Date.now()
+                };
+                let newMessage = await MessageModel.model.createNew(newMessageItem);
+                await ContactModel.updateWhenHasNewMessage(sender.id, receiverId);
+                resolve(newMessage);
+            }
+    })
+}
 let addNewImage = (sender, receiverId, messageVal, isChatGroup) => {
     return new Promise( async (resolve, reject) => {
             if(isChatGroup){
@@ -191,5 +257,6 @@ let addNewImage = (sender, receiverId, messageVal, isChatGroup) => {
 module.exports = {
     getAllConversationItems: getAllConversationItems,
     addNewTextEmoji: addNewTextEmoji,
-    addNewImage: addNewImage
+    addNewImage: addNewImage,
+    addNewAttachment:addNewAttachment
 };

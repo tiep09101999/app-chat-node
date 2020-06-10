@@ -183,8 +183,17 @@ function changeScreenChat(){
     enableEmojioneArea(divId);
 
     imageChat(divId);
+
+    attachmentChat(divId);
   })
 }
+
+function bufferToBase64(buffer){
+  return btoa(
+      new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), "")
+  )
+}
+
 $(document).ready(function() {
   // Hide số thông báo trên đầu icon mở modal contact
   showModalContacts();

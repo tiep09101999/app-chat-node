@@ -1,22 +1,13 @@
-function bufferToBase64(buffer){
-    return btoa(
-        new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), "")
-    )
-}
 
-function imageChat(divId){
-    $(`#image-chat-${divId}`).unbind("change").on("change", function(){
+
+
+function attachmentChat(divId){
+    $(`#attachment-chat-${divId}`).unbind("change").on("change", function(){
         let fileData = $(this).prop("files")[0];
-        let math = ["image/png","image/jpg","image/jpeg"];
         let limit = 1048576; // 104876 byte = 1Mb
 
-        if($.inArray(fileData.type, math) === -1){
-            alertify.notify("Kiểu file không hợp lệ. ( jpg/png/jpeg )", "error",5);
-            $(this).val(null);
-            return false;
-        };
         if(fileData.size > limit){
-            alertify.notify("Ảnh phải có kích thước nhỏ hơn 1MB", "error",5);
+            alertify.notify("File phải có kích thước nhỏ hơn 1MB", "error",5);
             $(this).val(null);
             return false;
         }
@@ -24,7 +15,7 @@ function imageChat(divId){
         let isChatGroup = false;
 
         let messageFormData = new FormData();
-        messageFormData.append("my-image-chat", fileData);
+        messageFormData.append("my-attachment-chat", fileData);
         messageFormData.append("uid", targetId);
 
         if($(this).hasClass("chat-in-group")){
@@ -32,7 +23,7 @@ function imageChat(divId){
             isChatGroup= true;
         }
         $.ajax({
-            url: "/message/add-new-image",
+            url: "/message/add-new-attachment",
             type: "post",
             cache: false,
             processData: false,
@@ -42,18 +33,23 @@ function imageChat(divId){
                 let dataToEmit = {
                     message: data.message
                 }
-               let messageOfMe = $(`<div class="bubble me bubble-image-file" data-mess-id="${data.message._id}"></div>`)
-               let imageChat = `<img src="data: ${data.message.file.contentType}; base64,${bufferToBase64(data.message.file.data.data)}"
-                                    class="show-image-chat">`;
+               let messageOfMe = $(`<div class="bubble me bubble-attachment-file" data-mess-id="${data.message._id}"></div>`)
+               
+                let attachmentChat = `
+                                        <a href="data: ${data.message.file.contentType}; base64, ${bufferToBase64(data.message.file.data.data)}" 
+                                            download="${data.message.file.fileName}">
+                                            ${data.message.file.fileName}
+                                        </a>
+                `;
                if(isChatGroup){
                    let senderAvatar = `<img src="/images/users/${data.message.sender.avatar}" 
                                      class ="avatar-small" title ="${data.message.sender.name}" />`;
-                    messageOfMe.html(`${senderAvatar} ${imageChat}`);
+                    messageOfMe.html(`${senderAvatar} ${attachmentChat}`);
                     dataToEmit.groupId= targetId;
                     increaseNumberMessage(divId);
                } else {
                     dataToEmit.contactId= targetId;
-                    messageOfMe.html(imageChat);
+                    messageOfMe.html(attachmentChat);
                }
 
                $(`.right .chat[data-chat=${divId}]`).append(messageOfMe);
@@ -61,7 +57,7 @@ function imageChat(divId){
 
                // hien thi tin nhắn mới và time mới
                $(`.person[data-chat=${divId}]`).find(`span.time`).removeClass("message-time-realtime").html(moment(data.message.createdAt).locale("vi").startOf("seconds").fromNow());
-               $(`.person[data-chat=${divId}]`).find(`span.preview`).html("Đã gửi một ảnh");
+               $(`.person[data-chat=${divId}]`).find(`span.preview`).html("Đã gửi một tệp đính kèm");
 
                 // chuyển conversation lên đầu 
                // TRIGGER EVENT NAMESPACE 42
@@ -73,7 +69,7 @@ function imageChat(divId){
                  $(`.person[data-chat=${divId}]`).trigger("tiepnguyen.moveOn");
 
                  // emit socket lên server
-                socket.emit("chat-image", dataToEmit);
+                socket.emit("chat-attachment", dataToEmit);
               
             },
             error: function(error){
@@ -83,21 +79,25 @@ function imageChat(divId){
     })
 }
 
-$(document).ready(function(){
-    socket.on("res-chat-image", function(data){
+$(document).ready(function(data){
+    socket.on("res-chat-attachment", function(data){
         let divId = "";
-        let messageOfYou = $(`<div class=" bubble you  bubble-image-file" data-mess-id="${data.message._id}"></div>`)
-        let imageChat = `<img src="data: ${data.message.file.contentType}; base64,${bufferToBase64(data.message.file.data.data)}"
-                                    class="show-image-chat">`;
+        let messageOfYou = $(`<div class=" bubble you  bubble-attachment-file" data-mess-id="${data.message._id}"></div>`)
+        let attachmentChat = `
+                                <a href="data: ${data.message.file.contentType}; base64, ${bufferToBase64(data.message.file.data.data)}" 
+                                    download="${data.message.file.fileName}">
+                                    ${data.message.file.fileName}
+                                </a>
+                            `;
         if(data.currentGroupId){
             let senderAvatar = `<img src="/images/users/${data.message.sender.avatar}" 
                               class ="avatar-small" title ="${data.message.sender.name}" />`;
-             messageOfYou.html(`${senderAvatar} ${imageChat}`);
+             messageOfYou.html(`${senderAvatar} ${attachmentChat}`);
              divId= data.currentGroupId;
              
         } else {
              divId= data.currentUserId;
-             messageOfYou.html(imageChat);
+             messageOfYou.html(attachmentChat);
         }
 
         if(data.currentUserId !== $("#dropdown-navbar-user").data("uid")){
@@ -109,7 +109,7 @@ $(document).ready(function(){
        
          // hien thi tin nhắn mới và time mới
          $(`.person[data-chat=${divId}]`).find(`span.time`).html(moment(data.message.createdAt).locale("vi").startOf("seconds").fromNow());
-         $(`.person[data-chat=${divId}]`).find(`span.preview`).html("Đã gửi một ảnh");
+         $(`.person[data-chat=${divId}]`).find(`span.preview`).html("Đã gửi một tệp đính kèm");
          
          // chuyển conversation lên đầu 
          $(`.person[data-chat=${divId}]`).on("tiepnguyen.moveOn", function(){
@@ -119,4 +119,4 @@ $(document).ready(function(){
          })
          $(`.person[data-chat=${divId}]`).trigger("tiepnguyen.moveOn");
     })
-})
+});
